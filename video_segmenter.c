@@ -43,14 +43,14 @@ static AVStream *add_output_stream(AVFormatContext *output_format_context, AVStr
  * Utilise un fichier temporaire + rename atomique pour éviter lectures incomplètes
  */
 static int write_index_file(
-        const char *index,
-        const char *tmp_index,
-        unsigned int numsegments,
-        const unsigned int *actual_segment_duration,
-        unsigned int segment_number_offset,
-        const char *output_prefix,
-        const char *output_file_extension,
-        int islast
+    const char *index,
+    const char *tmp_index,
+    unsigned int numsegments,
+    const unsigned int *actual_segment_duration,
+    unsigned int segment_number_offset,
+    const char *output_prefix,
+    const char *output_file_extension,
+    int islast
 ) {
     // Validation : au moins un segment requis
     if (numsegments < 1) return 0;
@@ -78,8 +78,8 @@ static int write_index_file(
         // EXTINF : durée du segment
         // Nom du fichier segment
         if (fprintf(tmp_index_fp, "#EXTINF:%u,\n%s-%u%s\n",
-                    actual_segment_duration[i], output_prefix,
-                    i + segment_number_offset, output_file_extension) < 0) {
+                   actual_segment_duration[i], output_prefix,
+                   i + segment_number_offset, output_file_extension) < 0) {
             fprintf(stderr, "Erreur: Échec d'écriture dans le fichier index\n");
             fclose(tmp_index_fp);
             return -1;
@@ -93,7 +93,7 @@ static int write_index_file(
     }
 
     fclose(tmp_index_fp);
-    // Renommage atomique : garantit que lecteurs voient fichier complet ou ancien
+     // Renommage atomique : garantit que lecteurs voient fichier complet ou ancien
     if (rename(tmp_index, index) != 0) {
         fprintf(stderr, "Erreur: Impossible de renommer '%s' en '%s': %s\n",
                 tmp_index, index, strerror(errno));
@@ -107,13 +107,13 @@ static int write_index_file(
  * Fonction principale de segmentation vidéo en chunks HLS
  */
 static int segment_video(
-        const char *input_file,
-        const char *base_dirpath,
-        const char *output_index_file,
-        const char *base_file_name,
-        const char *base_file_extension,
-        int segment_length,
-        int max_list_length
+    const char *input_file,
+    const char *base_dirpath,
+    const char *output_index_file,
+    const char *base_file_name,
+    const char *base_file_extension,
+    int segment_length,
+    int max_list_length
 ) {
     // Contextes FFmpeg pour lecture et écriture
     AVFormatContext *input_ctx = NULL;
@@ -275,7 +275,7 @@ static int segment_video(
             if (max_list_length > 0 && num_segments > (unsigned int)max_list_length) {
                 // Construit le nom du vieux segment à supprimer
                 snprintf(current_output_filename, MAX_FILENAME_LENGTH,
-                         "%s/%s-%u%s", base_dirpath, base_file_name, list_offset, base_file_extension);
+                        "%s/%s-%u%s", base_dirpath, base_file_name, list_offset, base_file_extension);
                 // Supprime le fichier
                 unlink(current_output_filename);
                 // Avance l'offset de la liste
@@ -283,12 +283,12 @@ static int segment_video(
                 num_segments--;
                 // Décale le tableau des durées
                 memmove(actual_segment_durations, actual_segment_durations + 1,
-                        num_segments * sizeof(actual_segment_durations[0]));
+                       num_segments * sizeof(actual_segment_durations[0]));
             }
             // Met à jour le fichier playlist M3U8
             write_index_file(output_index_file, tmp_output_index_file,
-                             num_segments, actual_segment_durations, list_offset,
-                             base_file_name, base_file_extension, 0);
+                           num_segments, actual_segment_durations, list_offset,
+                           base_file_name, base_file_extension, 0);
             // Sécurité : arrête si trop de segments
             if (num_segments >= MAX_SEGMENTS) {
                 fprintf(stderr, "Limite de segments atteinte (%u)\n", MAX_SEGMENTS);
@@ -299,7 +299,7 @@ static int segment_video(
             output_index++;
             // Crée le nouveau nom de fichier
             snprintf(current_output_filename, MAX_FILENAME_LENGTH,
-                     "%s/%s-%u%s", base_dirpath, base_file_name, output_index, base_file_extension);
+                    "%s/%s-%u%s", base_dirpath, base_file_name, output_index, base_file_extension);
             // Ouvre le nouveau fichier segment
             if (avio_open(&output_ctx->pb, current_output_filename, AVIO_FLAG_WRITE) < 0) {
                 fprintf(stderr, "Erreur: Impossible d'ouvrir '%s'\n", current_output_filename);
@@ -321,9 +321,9 @@ static int segment_video(
         AVStream *out_stream = output_ctx->streams[pkt.stream_index];
         // Recalcule les timestamps pour la nouvelle base temporelle
         pkt.pts = av_rescale_q_rnd(pkt.pts, in_stream->time_base, out_stream->time_base,
-                                   AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX);
+                                    AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX);
         pkt.dts = av_rescale_q_rnd(pkt.dts, in_stream->time_base, out_stream->time_base,
-                                   AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX);
+                                    AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX);
         pkt.duration = av_rescale_q(pkt.duration, in_stream->time_base, out_stream->time_base);
         // Position dans fichier non pertinente après remux
         pkt.pos = -1;
@@ -352,8 +352,8 @@ static int segment_video(
             num_segments++;
             // Écrit le fichier M3U8 final avec flag END
             write_index_file(output_index_file, tmp_output_index_file,
-                             num_segments, actual_segment_durations, list_offset,
-                             base_file_name, base_file_extension, 1);
+                           num_segments, actual_segment_durations, list_offset,
+                           base_file_name, base_file_extension, 1);
         }
     }
     // Libère toutes les ressources allouées
