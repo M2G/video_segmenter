@@ -31,10 +31,58 @@ make
 
 ## Utilisation
 
-### Syntaxe
+1. Rendez les scripts exécutables
 
 ```bash
-./segment <input_file> <output_dir> <index_file> <base_name> <extension> <segment_duration> [max_segments]
+chmod +x install.sh video_processor.sh
+```
+
+2. Installez (nécessite sudo)
+
+```bash
+sudo ./install.sh
+```
+
+3. Installez (nécessite sudo)
+
+```bash
+Vérifiez l'installation
+```
+
+Test manuel (traite une fois)
+
+```bash
+/usr/local/bin/video_processor.sh
+```
+
+Mode surveillance continue (boucle)
+
+```bash
+/usr/local/bin/video_processor.sh watch
+```
+
+Déposer une vidéo pour test
+
+```bash
+cp ma_video.mp4 /tmp/videos/
+```
+
+Voir les logs en direct
+
+```bash
+tail -f /var/log/video_processor.log
+```
+
+Nettoyer les anciens fichiers (>7 jours)
+
+```bash
+/usr/local/bin/video_processor.sh cleanup 7
+```
+
+Voir les tâches cron
+
+```bash
+crontab -l
 ```
 
 ### Paramètres
@@ -46,23 +94,6 @@ make
 - `extension` : Extension des segments (généralement `.ts`)
 - `segment_duration` : Durée de chaque segment en secondes
 - `max_segments` : (optionnel) Nombre max de segments dans la playlist (0 = illimité)
-
-### Exemples
-
-**Segmentation basique (10 secondes par segment)**
-```bash
-./segment video.mp4 ./output output.m3u8 segment .ts 10
-```
-
-**Streaming en direct (fenêtre glissante de 6 segments)**
-```bash
-./segment stream.mp4 ./live live.m3u8 chunk .ts 10 6
-```
-
-**Segments courts pour low-latency**
-```bash
-./segment video.mp4 ./output playlist.m3u8 seg .ts 2
-```
 
 ## Structure de sortie
 
